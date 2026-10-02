@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "deliciousbread481.glstatedebug.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "glstatedebug.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "client": [
+    "GlStateManagerMixin",
+    "OpenGlHelperMixin",
+    "RenderHelperMixin",
+    "RenderItemMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

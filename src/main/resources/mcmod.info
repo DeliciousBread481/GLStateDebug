@@ -1,0 +1,15 @@
+[
+  {
+    "modid": "glstatedebug",
+    "name": "GL State Debug",
+    "description": "Logs GL state leaks around GUI item rendering (alpha/blend/lighting/lightmap pollution).",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "authorList": ["DeliciousBread481"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

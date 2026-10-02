@@ -1,0 +1,33 @@
+# Gradle  
+.gradle/  
+build/  
+out/  
+run/  
+  
+# IDE  
+.idea/  
+*.iml  
+*.ipr  
+*.iws  
+.settings/  
+.classpath  
+.project  
+bin/  
+.vscode/  
+eclipse/  
+  
+# Mixin export / debug  
+*.log  
+logs/  
+config/  
+saves/  
+mods/  
+crash-reports/  
+options.txt  
+usercache.json  
+usernamecache.json  
+  
+# OS  
+.DS_Store  
+Thumbs.db
+*.py

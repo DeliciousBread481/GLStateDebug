@@ -1,0 +1,74 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
+
+version = modVersion
+group = modGroup
+archivesBaseName = "${modId}-${mcVersion}"
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
+}
+
+minecraft {
+    version = "${mcVersion}-${forgeVersion}"
+    runDir = 'run'
+    mappings = mcpMappings
+    // 客户端运行需要登录可替换为 makeEclipseRunDirs 等
+    coreMod = 'deliciousbread481.glstatedebug.core.GlStateDebugPlugin'
+    tweakClass = 'org.spongepowered.asm.launch.MixinTweaker'
+}
+
+mixin {
+    add sourceSets.main, 'glstatedebug.refmap.json'
+    config 'mixins.glstatedebug.json'
+    debug.verbose = true
+    debug.export = true
+}
+
+reobf {
+    reobf(SrgFile) {} // 确保 refmap reobf
+}
+
+dependencies {
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+}
+
+jar {
+    manifest {
+        attributes(
+            'MixinConfigs'                    : 'mixins.glstatedebug.json',
+            'FMLCorePlugin'                   : 'deliciousbread481.glstatedebug.core.GlStateDebugPlugin',
+            'FMLCorePluginContainsFMLMod'     : 'true',
+            'ForceLoadAsMod'                  : 'true',
+            'TweakClass'                      : 'org.spongepowered.asm.launch.MixinTweaker',
+            'ModSide'                         : 'CLIENT'
+        )
+    }
+}
+
+processResources {
+    // 展开 gradle.properties 中的变量到 mcmod.info / mixins json
+    inputs.property 'version', project.version
+    inputs.property 'mcversion', mcVersion
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': mcVersion
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
