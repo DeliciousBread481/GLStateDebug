@@ -1,4 +1,4 @@
-package deliciousbread481.glstatedebug;
+package com.deliciousbread481.glstatedebug;
 
 import java.util.concurrent.ConcurrentHashMap;
 

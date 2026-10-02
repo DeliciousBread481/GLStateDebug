@@ -1,21 +1,23 @@
 buildscript {
     repositories {
+        maven { url = 'https://mirror.sjtu.edu.cn/bmclapi' }
         maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url = 'https://maven.cleanroommc.com' }
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.7.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.194'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
-version = modVersion
-group = modGroup
-archivesBaseName = "${modId}-${mcVersion}"
+group   = project.mod_group
+version = project.mod_version
+archivesBaseName = project.mod_name
 
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
@@ -24,51 +26,59 @@ compileJava {
 }
 
 minecraft {
-    version = "${mcVersion}-${forgeVersion}"
-    runDir = 'run'
-    mappings = mcpMappings
-    // 客户端运行需要登录可替换为 makeEclipseRunDirs 等
-    coreMod = 'deliciousbread481.glstatedebug.core.GlStateDebugPlugin'
-    tweakClass = 'org.spongepowered.asm.launch.MixinTweaker'
+    mappings channel: 'stable', version: '39-1.12'
+    runs {
+        client {
+            workingDirectory project.file('run')
+        }
+        server {
+            workingDirectory project.file('run')
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = 'Mojang'
+        url = 'https://libraries.minecraft.net/'   // 补充 Mojang 库仓库
+    }
+    maven { url = 'https://mirror.sjtu.edu.cn/bmclapi' }
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven { url = 'https://maven.cleanroommc.com' }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860:userdev3'
+
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 mixin {
     add sourceSets.main, 'glstatedebug.refmap.json'
     config 'mixins.glstatedebug.json'
-    debug.verbose = true
-    debug.export = true
 }
 
-reobf {
-    reobf(SrgFile) {} // 确保 refmap reobf
-}
-
-dependencies {
-    compileOnly 'org.spongepowered:mixin:0.8.5'
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'mcversion', project.mc_version
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': project.mc_version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
 
 jar {
     manifest {
-        attributes(
-            'MixinConfigs'                    : 'mixins.glstatedebug.json',
-            'FMLCorePlugin'                   : 'deliciousbread481.glstatedebug.core.GlStateDebugPlugin',
-            'FMLCorePluginContainsFMLMod'     : 'true',
-            'ForceLoadAsMod'                  : 'true',
-            'TweakClass'                      : 'org.spongepowered.asm.launch.MixinTweaker',
-            'ModSide'                         : 'CLIENT'
-        )
-    }
-}
-
-processResources {
-    // 展开 gradle.properties 中的变量到 mcmod.info / mixins json
-    inputs.property 'version', project.version
-    inputs.property 'mcversion', mcVersion
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': mcVersion
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+        attributes([
+            'FMLCorePluginContainsFMLMod': 'true',
+            'ForceLoadAsMod'             : 'true',
+            'MixinConfigs'               : 'mixins.glstatedebug.json',
+            'TweakClass'                 : 'org.spongepowered.asm.launch.MixinTweaker',
+            'TweakOrder'                 : '0'
+        ])
     }
 }
